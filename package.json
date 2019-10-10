@@ -18,13 +18,12 @@
   "author": "lars",
   "license": "ISC",
   "devDependencies": {
+    "live-server": "^1.2.1",
+    "parcel": "^1.12.4",
     "cssnano": "^4.1.10",
     "node-sass": "^4.12.0",
     "parcel-plugin-asset-copier": "^1.0.0",
     "parcel-plugin-static-files-copy": "^2.2.1"
   },
-  "staticPath": "src/assets",
-  "dependencies": {
-    "parcel": "^1.12.4"
-  }
+  "staticPath": "src/assets"
 }
