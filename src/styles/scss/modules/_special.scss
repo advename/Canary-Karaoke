@@ -1,0 +1,14 @@
+//Trump card, override everything or use for commonly used classes
+strong {
+  font-weight: bold;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: block;
+}
+
+.hide {
+  display: none;
+}

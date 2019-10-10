@@ -1,0 +1,64 @@
+/* ==========================================================================
+   ATTENTION:
+   Use either the first approch for mobile first,
+   or the second approch for desktop first.
+
+   DELETE THE APPROACH YOU DONT NEED!
+   ========================================================================== */
+/* 
+#
+#
+#
+#
+#
+*/
+/* ==========================================================================
+   FIRST APPROACH - MOBILE FIRST
+   ========================================================================== */
+// Extra small devices (portrait phones, less than 576px)
+// No media query since this is the default in Bootstrap
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) {
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+}
+
+// Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+}
+/* 
+#
+#
+#
+#
+#
+*/
+/* ==========================================================================
+   SECOND APPROACH - DESKTOP FIRST
+   ========================================================================== */
+
+// Extra large devices (large desktops)
+// No media query since the extra-large breakpoint has no upper bound on its width
+
+// Large devices (desktops, less than 1200px)
+@media (max-width: 1199px) {
+}
+
+// Medium devices (tablets, less than 992px)
+@media (max-width: 991px) {
+}
+
+// Small devices (landscape phones, less than 768px)
+@media (max-width: 767px) {
+}
+
+// Extra small devices (portrait phones, less than 576px)
+@media (max-width: 575px) {
+}
