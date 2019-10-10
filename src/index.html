@@ -19,7 +19,7 @@
         overflow: hidden;
         border: 1px solid black;
         height: 500px;
-        background: grey;
+        background: rgb(212, 212, 212);
       }
       #pitch-track .canvas-container {
         display: inline-flex;
@@ -28,6 +28,18 @@
         width: 100vw;
         max-width: 100%;
         height: 500px;
+        position: relative;
+      }
+      .pitch-group {
+        width: 100vw;
+        max-width: 100%;
+        height: 500px;
+      }
+
+      .pitch {
+        height: 20px;
+        border: 2px solid red;
+        position: absolute;
       }
     </style>
   </head>
@@ -43,11 +55,7 @@
       <h1>Hello</h1>
       <div id="karaoke-screen">
         <div id="pitch-track">
-          <div class="canvas-container">
-            <canvas class="pitch-canvas">
-              Your browser does not support the canvas element.
-            </canvas>
-          </div>
+          <div class="canvas-container"></div>
         </div>
         <div id="lyrics"></div>
       </div>

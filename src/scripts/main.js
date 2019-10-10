@@ -35,17 +35,21 @@ function readSongData(text) {
   let splitedText = text.split("\n");
 
   //Get song meta data and save it to songMetaData object
+  let songMetaData = {};
   let songMetaDataTemp = splitedText.filter(function(line) {
     return line.indexOf("#") == 0;
   });
-  let songMetaData = {};
 
   songMetaDataTemp.forEach(meta => {
-    let key = meta.substr(1, meta.indexOf(":") - 1);
+    let key = meta.substr(1, meta.indexOf(":") - 1).toLowerCase();
     let value = meta
       .substr(meta.indexOf(":") + 1, meta.length - meta.indexOf(":"))
       .trim();
-    songMetaData[key.toLowerCase()] = value;
+    if (key == "bpm") {
+      value = parseInt(value.replace(",", "."));
+    } else {
+    }
+    songMetaData[key] = value;
   });
 
   // Get all lines of songs with beats, tone, length and the word, combine together belonging words in a group and add it to song data
@@ -67,18 +71,23 @@ function readSongData(text) {
     if (filteredLineArrayData[0] != "-") {
       wordData = {
         type: filteredLineArrayData[0],
-        beat: filteredLineArrayData[1],
-        length: filteredLineArrayData[2],
+        time: convertBeatToTime(songMetaData.bpm, filteredLineArrayData[1]),
+        length: convertBeatToTime(songMetaData.bpm, filteredLineArrayData[2]),
         tone: filteredLineArrayData[3],
         word: filteredLineArrayData[4]
       };
       groupOfWords.push(wordData);
     } else {
-      const groupDuration =
-        groupOfWords[groupOfWords.length - 1].beat - groupOfWords[0].beat;
+      const groupEnd = convertBeatToTime(
+        songMetaData.bpm,
+        filteredLineArrayData[1]
+      );
+      const groupDuration = groupEnd - groupOfWords[0].time;
+
       songData.groups.push({
         group_beat_length: groupDuration,
-        group: groupOfWords
+        group: groupOfWords,
+        group_end: groupEnd
       }); //add group of words to the songData array
       groupOfWords = [];
     }
@@ -92,30 +101,74 @@ function readSongData(text) {
 
 //Create the karaoke screen based on songData
 function createKaraokeScreen() {
-  const pitchCanvasContainer = document.querySelector(
-    "#pitch-canvas .container"
+  const pitchTrackContainer = document.querySelector(
+    "#pitch-track .canvas-container"
   );
   let fragment = document.createDocumentFragment();
+  let maxGroupLength = Math.max.apply(
+    Math,
+    songData.groups.map(function(o) {
+      return o.group_beat_length;
+    })
+  );
 
-  songData.groups.forEach(group => {
-    // console.log(group);
-    // if (group[0][0]) {
-    // }
+  songData.groups.forEach((group, i) => {
+    let groupCanvas = document.createElement("canvas");
+    groupCanvas.className = "pitch-group";
+    groupCanvas.width = group.group_beat_length;
+    groupCanvas.height = 200;
+    pitchTrackContainer.appendChild(groupCanvas);
+    let ctx = groupCanvas.getContext("2d");
+    group.group.forEach(word => {
+      if (i == 0) {
+        const startPoint = word.time;
+        const length = word.length;
+        console.log(
+          "Size: " +
+            group.group_beat_length +
+            ", Start :" +
+            startPoint +
+            ", Length: " +
+            length
+        );
+        ctx.fillStyle = "red";
+        ctx.fillRect(startPoint, 50, length, 100);
+      } else {
+        const startPoint = group.group_end - word.time - word.length;
+        const length = word.length;
+        console.log(
+          "Size: " +
+            group.group_beat_length +
+            ", Start :" +
+            startPoint +
+            ", Length: " +
+            length
+        );
+        ctx.fillStyle = "red";
+        ctx.fillRect(startPoint, 50, length, 100);
+      }
+    });
   });
+  // pitchTrackContainer.appendChild(fragment);
+}
 
-  // while (i < 200) {
-  //   el = document.createElement("li");
-  //   el.innerText = "This is my list item number " + i;
-  //   fragment.appendChild(el);
-  //   i++;
-  // }
+//Convert beats to time in miliseconds
+// function convertBeatToTime(bpm, beat) {
+//   return Math.ceil((beat / (4 * bpm)) * 60 * 1000);
+// }
 
-  // div;
+let xbpm = 400;
+let xbeat_duration = 1 / (xbpm / 60);
+let seconds = 60;
 
-  // pitchCanvas.setAttribute();
-  // var ctx = pitchCanvas.getContext("2d");
-  // ctx.fillStyle = "#FF0000";
-  // ctx.fillRect(0, 0, 150, 75);
+function secondToBeats(seconds) {
+  let beat_pos = seconds / xbeat_duration;
+  return Math.floor(beat_pos + xbeat_duration / 2);
+}
+let beat_number = secondToBeats(60);
+console.log(beat_number);
 
-  // pitchCanvasContainer.appendChild(fragment);
+function convertBeatToTime(bpm, beat) {
+  const beat_duration = 1 / (bpm / 60);
+  return Math.floor(beat_duration * beat * 1000);
 }
