@@ -23,5 +23,8 @@
     "parcel-plugin-asset-copier": "^1.0.0",
     "parcel-plugin-static-files-copy": "^2.2.1"
   },
-  "staticPath": "src/assets"
+  "staticPath": "src/assets",
+  "dependencies": {
+    "parcel": "^1.12.4"
+  }
 }
