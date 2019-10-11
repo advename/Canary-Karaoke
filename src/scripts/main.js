@@ -227,6 +227,7 @@ function createKaraokeScreen() {
         // ctx.fillRect(startPoint, word.tone * 10, length, 100);
       }
     });
+    writeWord(ctx, group.group_duration, group.group);
   });
 }
 
@@ -247,6 +248,17 @@ function createGroupCanvas(width, height, heightMultiplier) {
 function createSinglePitch(ctx, start, length, tone) {
   ctx.fillStyle = "red";
   ctx.fillRect(start, tone - 5, length, 10);
+}
+
+function writeWord(ctx, width, wordArray) {
+  let words = [];
+  wordArray.forEach(word => {
+    words.push(word.word);
+  });
+  let text = words.join(" ");
+  ctx.fillStyle = "blue";
+  ctx.font = "bold 60px Arial";
+  ctx.fillText(text, width / 2 - 20, 70);
 }
 
 function createNoteLines(ctx, width, height, heightMultiplier) {
@@ -283,3 +295,19 @@ function secondToBeats(seconds) {
 //   const beat_duration = 1 / (bpm / 60);
 //   return Math.floor((beat_duration * beat * 1000) / 4);
 // }
+
+/**
+ * Control
+ */
+const rightButton = document.querySelector(".right-button");
+let cLeft = 0;
+rightButton.addEventListener("click", continueGroup);
+
+function continueGroup() {
+  const pitchTrackContainer = document.querySelector(
+    "#pitch-track .canvas-container"
+  );
+  cLeft -= 100;
+  pitchTrackContainer.style.left = cLeft + "vw";
+  console.log("Go");
+}
