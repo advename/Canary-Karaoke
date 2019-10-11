@@ -78,16 +78,13 @@ function readSongData(text) {
       };
       groupOfWords.push(wordData);
     } else {
-      const groupEnd = convertBeatToTime(
-        songMetaData.bpm,
-        filteredLineArrayData[1]
-      );
-      const groupDuration = groupEnd - groupOfWords[0].time;
-
       songData.groups.push({
-        group_beat_length: groupDuration,
-        group: groupOfWords,
-        group_end: groupEnd
+        group_duration: 0, //the whole duration of each group
+        group: groupOfWords, //each word, length, start time and tone
+        group_start: 0, //the start of each group (gaps included)
+        group_end: 0, //the end of each group (gaps included)
+        group_gap_start: 0, //the allowed gap before the first word of this group
+        group_gap_end: 0 //the allowed gap before the end of this group
       }); //add group of words to the songData array
       groupOfWords = [];
     }
@@ -95,7 +92,90 @@ function readSongData(text) {
 
   //Combine song data and meta data
   songData = { ...songData, ...songMetaData };
-  console.log(songData);
+
+  songData.groups.forEach((group, i) => {
+    const currentGroup = group.group;
+    const currentGroupLast = currentGroup[currentGroup.length - 1];
+    //Add group_gap_start and group_gap_end for all else groups
+    if (i == 0) {
+      const nextGroup = songData.groups[i + 1].group;
+      const group_gap_start = currentGroupLast.time - 0;
+      const group_gap_end =
+        (nextGroup[0].time -
+          (currentGroupLast.time + currentGroupLast.length)) /
+        2;
+      const group_duration =
+        group_gap_start +
+        group_gap_end +
+        (currentGroupLast.time +
+          currentGroupLast.length -
+          currentGroup[0].time);
+
+      const group_end =
+        currentGroupLast.time + currentGroupLast.length + group_gap_end;
+      const group_start = 0;
+      //Update song data
+      songData.groups[i].group_gap_start = group_gap_start;
+      songData.groups[i].group_gap_end = group_gap_end;
+      songData.groups[i].group_duration = group_duration;
+      songData.groups[i].group_end = group_end;
+      songData.groups[i].group_start = group_start;
+    } else if (i == songData.groups.length - 1) {
+      const prevGroup = songData.groups[i - 1].group;
+
+      const group_gap_start =
+        (currentGroup[0].time -
+          (prevGroup[prevGroup.length - 1].time +
+            prevGroup[prevGroup.length - 1].length)) /
+        2;
+
+      const group_gap_end =
+        group.group_end - currentGroupLast.time + currentGroupLast.length;
+      const group_duration =
+        group_gap_start +
+        group_gap_end +
+        (currentGroupLast.time +
+          currentGroupLast.length -
+          currentGroup[0].time);
+      const group_end =
+        currentGroupLast.time + currentGroupLast.length + group_gap_end;
+      const group_start = currentGroup[0].time - group_gap_start;
+      //Update song data
+      songData.groups[i].group_gap_start = group_gap_start;
+      songData.groups[i].group_gap_end = group_gap_end;
+      songData.groups[i].group_duration = group_duration;
+      songData.groups[i].group_end = group_end;
+      songData.groups[i].group_start = group_start;
+    } else {
+      const prevGroup = songData.groups[i - 1].group;
+      const nextGroup = songData.groups[i + 1].group;
+      const group_gap_start =
+        (currentGroup[0].time -
+          (prevGroup[prevGroup.length - 1].time +
+            prevGroup[prevGroup.length - 1].length)) /
+        2;
+      const group_gap_end =
+        (nextGroup[0].time -
+          (currentGroupLast.time + currentGroupLast.length)) /
+        2;
+      const group_duration =
+        group_gap_start +
+        group_gap_end +
+        (currentGroupLast.time +
+          currentGroupLast.length -
+          currentGroup[0].time);
+      const group_end =
+        currentGroupLast.time + currentGroupLast.length + group_gap_end;
+      const group_start = currentGroup[0].time - group_gap_start;
+      //Update song data
+      songData.groups[i].group_gap_start = group_gap_start;
+      songData.groups[i].group_gap_end = group_gap_end;
+      songData.groups[i].group_duration = group_duration;
+      songData.groups[i].group_end = group_end;
+      songData.groups[i].group_start = group_start;
+    }
+  });
+  console.log(songData.groups);
   createKaraokeScreen();
 }
 
@@ -108,54 +188,59 @@ function createKaraokeScreen() {
   let maxGroupLength = Math.max.apply(
     Math,
     songData.groups.map(function(o) {
-      return o.group_beat_length;
+      return o.group_duration;
     })
   );
 
   songData.groups.forEach((group, i) => {
     let groupCanvas = document.createElement("canvas");
     groupCanvas.className = "pitch-group";
-    groupCanvas.width = group.group_beat_length;
+    groupCanvas.width = group.group_duration;
     groupCanvas.height = 200;
-    pitchTrackContainer.appendChild(groupCanvas);
     let ctx = groupCanvas.getContext("2d");
+    const groupStartPoint = group.group_start;
     group.group.forEach(word => {
       if (i == 0) {
         const startPoint = word.time;
         const length = word.length;
         console.log(
           "Size: " +
-            group.group_beat_length +
+            group.group_duration +
             ", Start :" +
             startPoint +
             ", Length: " +
             length
         );
-        ctx.fillStyle = "red";
-        ctx.fillRect(startPoint, 50, length, 100);
+        createSinglePitch(ctx, startPoint, length, word.tone);
       } else {
-        const startPoint = group.group_end - word.time - word.length;
+        const startPoint = word.time - groupStartPoint;
         const length = word.length;
         console.log(
           "Size: " +
-            group.group_beat_length +
+            group.group_duration +
             ", Start :" +
             startPoint +
             ", Length: " +
             length
         );
-        ctx.fillStyle = "red";
-        ctx.fillRect(startPoint, 50, length, 100);
+        createSinglePitch(ctx, startPoint, length, word.tone);
+        // ctx.fillStyle = "red";
+        // ctx.fillRect(startPoint, word.tone * 10, length, 100);
       }
     });
+    pitchTrackContainer.appendChild(groupCanvas);
   });
-  // pitchTrackContainer.appendChild(fragment);
+}
+
+function createSinglePitch(ctx, start, length, tone) {
+  ctx.fillStyle = "red";
+  ctx.fillRect(start, tone * 10, length, tone * 10 - 10);
 }
 
 //Convert beats to time in miliseconds
-// function convertBeatToTime(bpm, beat) {
-//   return Math.ceil((beat / (4 * bpm)) * 60 * 1000);
-// }
+function convertBeatToTime(bpm, beat) {
+  return Math.floor((beat / (4 * bpm)) * 60 * 1000);
+}
 
 let xbpm = 400;
 let xbeat_duration = 1 / (xbpm / 60);
@@ -168,7 +253,7 @@ function secondToBeats(seconds) {
 let beat_number = secondToBeats(60);
 console.log(beat_number);
 
-function convertBeatToTime(bpm, beat) {
-  const beat_duration = 1 / (bpm / 60);
-  return Math.floor(beat_duration * beat * 1000);
-}
+// function convertBeatToTime(bpm, beat) {
+//   const beat_duration = 1 / (bpm / 60);
+//   return Math.floor((beat_duration * beat * 1000) / 4);
+// }
