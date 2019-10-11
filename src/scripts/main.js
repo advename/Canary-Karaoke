@@ -73,7 +73,7 @@ function readSongData(text) {
         type: filteredLineArrayData[0],
         time: convertBeatToTime(songMetaData.bpm, filteredLineArrayData[1]),
         length: convertBeatToTime(songMetaData.bpm, filteredLineArrayData[2]),
-        tone: filteredLineArrayData[3],
+        tone: parseInt(filteredLineArrayData[3]),
         word: filteredLineArrayData[4]
       };
       groupOfWords.push(wordData);
@@ -91,8 +91,8 @@ function readSongData(text) {
   });
 
   //Combine song data and meta data
-  songData = { ...songData, ...songMetaData };
-
+  songData = Object.assign({}, songData, songMetaData);
+  // { ...songData, ...songMetaData };
   songData.groups.forEach((group, i) => {
     const currentGroup = group.group;
     const currentGroupLast = currentGroup[currentGroup.length - 1];
@@ -181,9 +181,6 @@ function readSongData(text) {
 
 //Create the karaoke screen based on songData
 function createKaraokeScreen() {
-  const pitchTrackContainer = document.querySelector(
-    "#pitch-track .canvas-container"
-  );
   let fragment = document.createDocumentFragment();
   let maxGroupLength = Math.max.apply(
     Math,
@@ -193,48 +190,79 @@ function createKaraokeScreen() {
   );
 
   songData.groups.forEach((group, i) => {
-    let groupCanvas = document.createElement("canvas");
-    groupCanvas.className = "pitch-group";
-    groupCanvas.width = group.group_duration;
-    groupCanvas.height = 200;
-    let ctx = groupCanvas.getContext("2d");
+    let canvasHeight = 30;
+    let canvasHeightMultiplier = 10;
+
+    let groupCanvas = createGroupCanvas(
+      group.group_duration,
+      canvasHeight,
+      canvasHeightMultiplier
+    );
+    let ctx = groupCanvas;
+    createNoteLines(
+      ctx,
+      group.group_duration,
+      canvasHeight,
+      canvasHeightMultiplier
+    );
     const groupStartPoint = group.group_start;
     group.group.forEach(word => {
       if (i == 0) {
         const startPoint = word.time;
         const length = word.length;
-        console.log(
-          "Size: " +
-            group.group_duration +
-            ", Start :" +
-            startPoint +
-            ", Length: " +
-            length
-        );
-        createSinglePitch(ctx, startPoint, length, word.tone);
+        const startHeight =
+          canvasHeight * canvasHeightMultiplier -
+          word.tone * canvasHeightMultiplier; //get height of the tone to start
+
+        createSinglePitch(ctx, startPoint, length, startHeight);
       } else {
         const startPoint = word.time - groupStartPoint;
         const length = word.length;
-        console.log(
-          "Size: " +
-            group.group_duration +
-            ", Start :" +
-            startPoint +
-            ", Length: " +
-            length
-        );
-        createSinglePitch(ctx, startPoint, length, word.tone);
+        const startHeight =
+          canvasHeight * canvasHeightMultiplier -
+          word.tone * canvasHeightMultiplier; //get height of the tone to start
+
+        createSinglePitch(ctx, startPoint, length, startHeight);
         // ctx.fillStyle = "red";
         // ctx.fillRect(startPoint, word.tone * 10, length, 100);
       }
     });
-    pitchTrackContainer.appendChild(groupCanvas);
   });
+}
+
+function createGroupCanvas(width, height, heightMultiplier) {
+  const pitchTrackContainer = document.querySelector(
+    "#pitch-track .canvas-container"
+  );
+  let groupCanvas = document.createElement("canvas");
+  let ctx = groupCanvas.getContext("2d");
+
+  groupCanvas.className = "pitch-group";
+  groupCanvas.width = width;
+  groupCanvas.height = height * heightMultiplier;
+  pitchTrackContainer.appendChild(groupCanvas);
+  return ctx;
 }
 
 function createSinglePitch(ctx, start, length, tone) {
   ctx.fillStyle = "red";
-  ctx.fillRect(start, tone * 10, length, tone * 10 - 10);
+  ctx.fillRect(start, tone - 5, length, 10);
+}
+
+function createNoteLines(ctx, width, height, heightMultiplier) {
+  //Draw 10 horizontal lines
+  let steps = (height * heightMultiplier) / 10;
+  let currentStep = 0;
+  for (let i = 0; i <= 10; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, currentStep);
+    ctx.lineTo(width, currentStep);
+    ctx.lineWidth = 1;
+    // set line color
+    ctx.strokeStyle = "#3B4839";
+    ctx.stroke();
+    currentStep = currentStep + steps;
+  }
 }
 
 //Convert beats to time in miliseconds
@@ -250,8 +278,6 @@ function secondToBeats(seconds) {
   let beat_pos = seconds / xbeat_duration;
   return Math.floor(beat_pos + xbeat_duration / 2);
 }
-let beat_number = secondToBeats(60);
-console.log(beat_number);
 
 // function convertBeatToTime(bpm, beat) {
 //   const beat_duration = 1 / (bpm / 60);

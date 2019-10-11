@@ -9,11 +9,11 @@
     "=============================": "====================================",
     "build-sass": "node-sass src/styles/scss/primary.scss src/styles/main.css",
     "build-parcel": "parcel build src/index.html --public-url .",
-    "build": "npm run dist-clear && npm run build-sass && npm run build-parcel && npm run build-static-path",
+    "build": "npm run dist-clear && npm run build-sass && npm run build-parcel && npm run build-static-path && npm run github-page",
     "build-server": "cd dist && live-server --no-browser",
     "dist-clear": "rm -r -f dist/*",
     "build-static-path": "cp -a src/assets dist/",
-    "github-page": "rm -r -f docs/* && cp -a dist docs/"
+    "github-page": "rm -r -f docs/* && cp -a dist/. docs/ && cp -a src/songs/. docs/"
   },
   "author": "lars",
   "license": "ISC",
