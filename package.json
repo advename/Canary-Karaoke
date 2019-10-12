@@ -13,7 +13,8 @@
     "build-server": "cd dist && live-server --no-browser",
     "dist-clear": "rm -r -f dist/*",
     "build-static-path": "cp -a src/assets dist/",
-    "github-page": "rm -r -f docs/* && cp -a dist/. docs/ && cp -a src/songs/ docs/"
+    "github-page": "rm -r -f docs/* && cp -a dist/. docs/ && cp -a src/songs/ docs/",
+    "build-github": "rm -r -f docs/* && cp -a src/. docs/"
   },
   "author": "lars",
   "license": "ISC",
