@@ -13,17 +13,25 @@
       *:after {
         box-sizing: border-box;
       }
+      #karaoke-screen {
+        width: 100vw;
+        max-width: 100%;
+        /* overflow: hidden; */
+        height: 90vh;
+      }
       #pitch-track {
         width: 100vw;
         max-width: 100%;
         overflow: hidden;
         height: 300px;
-        background: rgb(234, 234, 234);
+        background: rgba(202, 202, 202, 0.9);
+        position: absolute;
+        bottom: 0px;
       }
       #pitch-track .canvas-container {
         display: inline-flex;
         position: relative;
-        left: 0px;
+        transform: translateX(0vw);
       }
       .pitch-canvas {
         width: 100vw;
@@ -42,12 +50,33 @@
         border: 2px solid red;
         position: absolute;
       }
-      .right-button {
+      .start-button {
         font-size: 25px;
         padding: 10px 20px;
         width: 140px;
         margin: 5px auto;
         display: block;
+      }
+      .player-container {
+        position: absolute;
+        z-index: -1;
+        width: 100vw;
+        max-width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .player-container-2 {
+        position: relative;
+        width: 100vw;
+        max-width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #player {
+        width: 180vw;
+        height: 140vh;
       }
     </style>
   </head>
@@ -60,17 +89,23 @@
 
     <!-- Main Content -->
     <main>
-      <h1>Canary Karaoke</h1>
+      <!-- <h1>Canary Karaoke</h1>
       <h4>Backstreet Boys - I want it that way</h4>
       <br />
-      <br />
+      <br /> -->
       <div id="karaoke-screen">
+        <div class="player-container">
+          <div class="player-container-2">
+            <div id="player"></div>
+          </div>
+        </div>
+
         <div id="pitch-track">
           <div class="canvas-container"></div>
+          <button class="start-button">Start</button>
         </div>
         <div id="lyrics"></div>
       </div>
-      <button class="right-button">RIGHT</button>
     </main>
 
     <!-- Footer Content -->

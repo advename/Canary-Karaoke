@@ -9,6 +9,8 @@
 #GAP:3336
 #VIDEO:Backstreet Boys - I Want it That Way.avi
 #VIDEOGAP:5,9
+#YOUTUBE:https://www.youtube.com/watch?v=4fndeDfaWCg
+#YOUTUBEGAP: 7000
 : 0 4 13 Yeah
 : 6 4 11  eh
 : 14 6 9  eh

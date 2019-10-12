@@ -175,7 +175,7 @@ function readSongData(text) {
       songData.groups[i].group_start = group_start;
     }
   });
-  console.log(songData.groups);
+  console.log(songData);
   createKaraokeScreen();
 }
 
@@ -299,15 +299,72 @@ function secondToBeats(seconds) {
 /**
  * Control
  */
-const rightButton = document.querySelector(".right-button");
+
 let cLeft = 0;
-rightButton.addEventListener("click", continueGroup);
 
 function continueGroup() {
   const pitchTrackContainer = document.querySelector(
     "#pitch-track .canvas-container"
   );
   cLeft -= 100;
-  pitchTrackContainer.style.left = cLeft + "vw";
-  console.log("Go");
+  pitchTrackContainer.style.transform = "translateX(" + cLeft + "vw)";
+  console.log(cLeft);
+}
+
+/**
+ * Start Karaoke
+ */
+const startButton = document.querySelector(".start-button");
+startButton.addEventListener("click", karaokeStart);
+
+function karaokeStart() {
+  playYoutubeVideo();
+  startGap = parseInt(songData.youtubegap) + parseInt(songData.gap);
+  setTimeout(() => {
+    karaokeInterval = setInterval(karaokePlay, karaokeIntervalTime);
+  }, startGap);
+}
+
+/**
+ * Time controller
+ */
+let karaokeCurrentGroup = 0;
+let karaokeTime = 0;
+let karaokeIntervalTime = 100;
+let karaokeInterval; //interval is set in init()
+
+function karaokePlay() {
+  karaokeTime += karaokeIntervalTime;
+  console.log(songData.groups[karaokeCurrentGroup].group_end);
+  if (karaokeTime >= songData.groups[karaokeCurrentGroup].group_end) {
+    continueGroup();
+    ++karaokeCurrentGroup;
+  }
+  // clearInterval(karaokeInterval);
+}
+
+/**
+ * Add youtube background video
+ */
+let tag = document.createElement("script");
+tag.src = "https://www.youtube.com/iframe_api";
+let firstScriptTag = document.getElementsByTagName("script")[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+let player;
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player("player", {
+    height: "720",
+    width: "1080",
+    videoId: "4fndeDfaWCg",
+    events: {}
+  });
+}
+
+function playYoutubeVideo(event) {
+  player.playVideo();
+}
+
+function stopVideo() {
+  player.stopVideo();
 }
