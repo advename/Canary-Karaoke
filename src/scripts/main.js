@@ -322,6 +322,8 @@ function karaokeStart() {
   startGap = parseInt(songData.youtubegap) + parseInt(songData.gap);
   setTimeout(() => {
     karaokeInterval = setInterval(karaokePlay, karaokeIntervalTime);
+    trackLineInitial();
+    // trackLineInterval = setInterval(trackLineStart, trackLineIntervalTime);
   }, startGap);
 }
 
@@ -335,9 +337,11 @@ let karaokeInterval; //interval is set in init()
 
 function karaokePlay() {
   karaokeTime += karaokeIntervalTime;
-  console.log(songData.groups[karaokeCurrentGroup].group_end);
+  // console.log(karaokeTime);
+  // console.log(songData.groups[karaokeCurrentGroup].group_end);
   if (karaokeTime >= songData.groups[karaokeCurrentGroup].group_end) {
     continueGroup();
+    trackLineUpdate();
     ++karaokeCurrentGroup;
   }
   // clearInterval(karaokeInterval);
@@ -367,4 +371,54 @@ function playYoutubeVideo(event) {
 
 function stopVideo() {
   player.stopVideo();
+}
+
+/**
+ * Track line actions
+ */
+const trackLine = document.querySelector("#track-line");
+
+// let trackLineTime = 0;
+// let trackLineIntervalTime = 10;
+// let trackLineInterval; //interval is set in init()
+
+// function trackLineStart() {
+//   let duration = songData.groups[karaokeCurrentGroup].group_duration;
+//   // console.log(trackLineTime, duration);
+//   if (trackLineTime <= songData.groups[karaokeCurrentGroup].group_duration) {
+//     trackLineTime = trackLineTime + trackLineIntervalTime;
+//   } else {
+//     trackLineTime = 0;
+//   }
+//   moveTrackLine();
+// }
+
+// function moveTrackLine() {
+//   let duration = songData.groups[karaokeCurrentGroup].group_duration;
+//   let steps = 100 / duration;
+//   let newX = steps * trackLineTime;
+
+//   // First reset to 0
+//   trackLine.style.transform = `translateX(${newX}vw)`;
+//   console.log(newX);
+// }
+const vw = Math.max(
+  document.documentElement.clientWidth,
+  window.innerWidth || 0
+);
+let trackLineTL = new TimelineMax();
+function trackLineInitial() {
+  let duration = songData.groups[karaokeCurrentGroup].group_duration / 1000;
+  trackLineTL.fromTo(
+    trackLine,
+    duration,
+    { x: 0, ease: Power0.easeNone },
+    { x: vw, ease: Power0.easeNone }
+  );
+  trackLineTL.repeat(-1);
+}
+
+function trackLineUpdate() {
+  let duration = songData.groups[karaokeCurrentGroup].group_duration / 1000;
+  trackLineTL.timeScale(duration);
 }
