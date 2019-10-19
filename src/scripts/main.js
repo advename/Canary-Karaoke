@@ -104,16 +104,11 @@ function readSongData(text) {
         (nextGroup[0].time -
           (currentGroupLast.time + currentGroupLast.length)) /
         2;
-      const group_duration =
-        group_gap_start +
-        group_gap_end +
-        (currentGroupLast.time +
-          currentGroupLast.length -
-          currentGroup[0].time);
 
       const group_end =
         currentGroupLast.time + currentGroupLast.length + group_gap_end;
       const group_start = 0;
+      const group_duration = group_end - group_start;
       //Update song data
       songData.groups[i].group_gap_start = group_gap_start;
       songData.groups[i].group_gap_end = group_gap_end;
@@ -131,15 +126,11 @@ function readSongData(text) {
 
       const group_gap_end =
         group.group_end - currentGroupLast.time + currentGroupLast.length;
-      const group_duration =
-        group_gap_start +
-        group_gap_end +
-        (currentGroupLast.time +
-          currentGroupLast.length -
-          currentGroup[0].time);
+
       const group_end =
         currentGroupLast.time + currentGroupLast.length + group_gap_end;
       const group_start = currentGroup[0].time - group_gap_start;
+      const group_duration = group_end - group_start;
       //Update song data
       songData.groups[i].group_gap_start = group_gap_start;
       songData.groups[i].group_gap_end = group_gap_end;
@@ -158,15 +149,11 @@ function readSongData(text) {
         (nextGroup[0].time -
           (currentGroupLast.time + currentGroupLast.length)) /
         2;
-      const group_duration =
-        group_gap_start +
-        group_gap_end +
-        (currentGroupLast.time +
-          currentGroupLast.length -
-          currentGroup[0].time);
+
       const group_end =
         currentGroupLast.time + currentGroupLast.length + group_gap_end;
       const group_start = currentGroup[0].time - group_gap_start;
+      const group_duration = group_end - group_start;
       //Update song data
       songData.groups[i].group_gap_start = group_gap_start;
       songData.groups[i].group_gap_end = group_gap_end;
@@ -415,10 +402,16 @@ function trackLineInitial() {
     { x: 0, ease: Power0.easeNone },
     { x: vw, ease: Power0.easeNone }
   );
-  trackLineTL.repeat(-1);
+  // trackLineTL.repeat(-1);
 }
 
 function trackLineUpdate() {
   let duration = songData.groups[karaokeCurrentGroup].group_duration / 1000;
-  trackLineTL.timeScale(duration);
+  console.log(duration);
+  trackLineTL.fromTo(
+    trackLine,
+    duration,
+    { x: 0, ease: Power0.easeNone },
+    { x: vw, ease: Power0.easeNone }
+  );
 }
